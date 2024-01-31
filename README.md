@@ -1,70 +1,75 @@
-# Getting Started with Create React App
+# Member Service 구현
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+- ZZAUG 프로젝트에서 진행할 로그인, 회원가입 등의 멤버 서비스 구현 전 미리 연습해보는 미니 프로젝트입니다.
+- 유튜브 영상을 참고하며 진행하였습니다.
 
-## Available Scripts
+## 디렉토리 구조
 
-In the project directory, you can run:
+```
+/src
+|-- apis
+|   |-- authAxios.js
+|   |-- login.js
+|   |-- mypage.js
+|   |-- refresh.js
+|   |-- signUp.js
+|
+|-- components
+|   |-- Common.js
+|
+|-- hooks
+|   |-- useFrom.js
+|
+|-- pages
+|   |-- Home.js
+|   |-- Mypage.js
+|   |-- Signup.js
+```
 
-### `npm start`
+## **분석**
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+1. **`Home.js` - 홈 페이지 컴포넌트**
+   - **`useState`**를 사용하여 아이디(**`id`**)와 비밀번호(**`pw`**)를 관리.
+   - **`useNavigate`** 훅을 사용하여 React Router의 **`router`** 객체를 획득.
+   - 아이디와 비밀번호의 입력값이 변할 때마다 **`onChangeId`** 및 **`onChangePw`** 함수가 호출되어 상태를 업데이트.
+   - 로그인 버튼을 클릭하면 **`login`** 함수를 호출하고, 성공 시 토큰을 로컬 스토리지에 저장하고 **`/mypage`**로 이동.
+2. **`Signup.js` - 회원가입 페이지 컴포넌트**
+   - **`useForm`** 훅을 사용하여 아이디(**`id`**), 비밀번호(**`pw`**), 이름(**`name`**), 나이(**`age`**) 상태 및 이를 업데이트하는 함수들을 생성.
+   - 입력값이 변할 때마다 상태가 업데이트되도록 설정.
+   - 회원가입 버튼을 클릭하면 **`signUp`** 함수를 호출하고, 성공 시 홈 페이지(**`/`**)로 이동.
+3. **`Mypage.js` - 마이페이지 컴포넌트**
+   - **`useEffect`** 훅을 사용하여 컴포넌트가 마운트될 때 **`getMyPage`** 함수를 호출해 마이페이지 데이터를 가져오고 상태를 업데이트.
+   - 로딩 중일 때는 "로딩중..."을 보여주고, 데이터가 로드되면 이름과 나이를 표시.
+4. **API 및 Axios 관련 코드**
+   - **`authAxios.js`**: 토큰을 포함한 Axios 인스턴스를 생성하고, 401 에러가 발생하면 토큰을 갱신하여 재시도.
+     - **`axios.create`**: **`axios`** 라이브러리를 사용하여 baseURL 및 기본 헤더를 가진 Axios 인스턴스를 생성합니다.
+     - **`interceptors`**: 응답에 대한 인터셉터를 설정하여 401 에러 발생 시 토큰을 갱신하고 재시도합니다.
+     - **`getNewREfreshToken`**: 토큰을 갱신하는 함수를 호출하고 새로운 토큰을 받아와서 요청을 재시도합니다.
+   - **`login.js`**: 로그인을 위한 API 호출을 수행하고 결과를 반환.
+     - **`axios.post`**: **`axios`** 라이브러리를 사용하여 서버에 POST 요청을 보냅니다.
+     - **`'http://front.cau-likelion.org'`**: 로그인 요청을 보낼 서버의 엔드포인트 주소입니다. 실제 서버 주소로 변경해야 합니다.
+     - **`{ id, pw }`**: 로그인에 필요한 사용자의 아이디와 비밀번호를 요청의 바디에 담아 보냅니다.
+     - **`await`**: 비동기 함수로 **`await`** 키워드를 사용하여 서버 응답이 도착할 때까지 대기합니다.
+     - **`result.data.data`**: 서버 응답에서 필요한 데이터를 추출합니다. 여기서는 성공적으로 로그인한 경우를 가정하고 **`data`** 속성을 반환합니다.
+     - **`throw error`**: 로그인에 실패하면 예외를 던져서 호출자가 실패 상황을 처리할 수 있도록 합니다.
+   - **`mypage.js`**: 마이페이지 데이터를 가져오기 위한 API 호출을 수행하고 결과를 반환.
+     - **`getAuthAxios`**: 앞서 정의한 **`getAuthAxios`** 함수를 사용하여 토큰이 포함된 Axios를 가져옵니다.
+     - **`authAxios.get`**: 인증된 Axios를 사용하여 서버에 마이페이지 데이터를 요청하고 응답을 반환합니다.
+   - **`refresh.js`**: 토큰을 갱신하기 위한 API 호출을 수행하고 결과를 반환.
+     - **`axios.post`**: **`axios`**를 사용하여 서버에 POST 요청을 보내고 새로운 토큰을 얻어옵니다.
+     - 로컬 스토리지에서 access 토큰과 refresh 토큰을 가져와 요청에 사용합니다.
+   - **`signUp.js`**: 회원가입을 위한 API 호출을 수행하고 결과를 반환.
+     - **`axios.post`**: **`axios`**를 사용하여 회원가입을 위한 POST 요청을 보내고 결과를 반환합니다.
+     - 사용자의 아이디, 비밀번호, 이름, 나이를 서버에 전달합니다.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **`useForm.js` - 입력 양식 상태를 처리하는 커스텀 훅**
+  - 입력 양식의 값을 관리하고 변경 이벤트를 처리하는 훅.
 
-### `npm test`
+## **코드 실행 순서**
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+1. **`Home`** 컴포넌트가 마운트되면서 초기 상태 및 이벤트 핸들러 설정.
+2. 사용자가 아이디와 비밀번호를 입력하고 로그인 버튼을 클릭하면 **`onClick`** 함수가 실행.
+3. **`onClick`** 함수 내에서 **`login`** 함수를 호출하여 서버에 로그인 요청을 보냄.
+4. 성공적으로 로그인하면 반환된 토큰을 로컬 스토리지에 저장하고 **`/mypage`**로 이동.
+5. **`Mypage`** 컴포넌트가 마운트되면 **`useEffect`** 훅이 실행되어 **`getMyPage`** 함수를 호출하여 마이페이지 데이터를 가져옴.
+6. 데이터가 로드되면 해당 데이터를 화면에 표시.

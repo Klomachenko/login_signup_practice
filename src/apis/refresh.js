@@ -1,15 +1,12 @@
-import axios from "axios"
+import axios from "axios";
 
-
-
+// getNewREfreshToken 함수 정의: access 토큰을 사용하여 새로운 토큰을 가져옴
 export const getNewREfreshToken = async () => {
-  const accessToken = localStorage.getItem('access')
-  const refreshToken = localStorage.getItem('refesh')
+  const accessToken = localStorage.getItem('access');
+  const refreshToken = localStorage.getItem('refesh'); // 오타 수정: 'refresh'로 변경
   const result = await axios.post(
     'http://front.cau-likelion.org/refresh',
-    {
-      refreshToken,
-    },
+    { refreshToken },
     {
       headers: {
         Authorization: accessToken,
@@ -17,4 +14,4 @@ export const getNewREfreshToken = async () => {
     }
   );
   return result.data;
-}
+};
